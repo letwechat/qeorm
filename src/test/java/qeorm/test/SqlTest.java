@@ -1,6 +1,6 @@
 package qeorm.test;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import qeorm.SqlConfig;
 import qeorm.SqlConfigManager;
 import qeorm.SqlExecutor;

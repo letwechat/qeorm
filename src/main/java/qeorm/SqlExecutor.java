@@ -1,13 +1,12 @@
 package qeorm;
 
-import com.alibaba.druid.pool.DruidAbstractDataSource;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 import qeorm.utils.JsonUtils;
 
-import javax.sql.DataSource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ashen on 2017-2-4.
@@ -121,17 +120,19 @@ public class SqlExecutor {
         if (!Strings.isNullOrEmpty(sqlConfig.getProxy())) {
             return new ProxyExecutor();
         }
-        NamedParameterJdbcDaoSupport jdbc = (NamedParameterJdbcDaoSupport) SqlSession.instance.getSupport(sqlConfig.getDbName());
-        DruidAbstractDataSource dataSource = (DruidAbstractDataSource) jdbc.getDataSource();
-        String url = dataSource.getUrl();
-        return getExecutor(url);
+        return new SqlResultExecutor();
+//        NamedParameterJdbcDaoSupport jdbc = (NamedParameterJdbcDaoSupport) SqlSession.instance.getSupport(sqlConfig.getDbName());
+//        DataSource dataSource =  jdbc.getDataSource();
+//        String url = dataSource.getUrl();
+//        return getExecutor(url);
     }
 
     public static SqlResultExecutor getExecutorByDbname(String dbName) {
-        NamedParameterJdbcDaoSupport jdbc = (NamedParameterJdbcDaoSupport) SqlSession.instance.getSupport(dbName);
-        DruidAbstractDataSource dataSource = (DruidAbstractDataSource) jdbc.getDataSource();
-        String url = dataSource.getUrl();
-        return getExecutor(url);
+        return new SqlResultExecutor();
+//        NamedParameterJdbcDaoSupport jdbc = (NamedParameterJdbcDaoSupport) SqlSession.instance.getSupport(dbName);
+//        DruidAbstractDataSource dataSource = (DruidAbstractDataSource) jdbc.getDataSource();
+//        String url = dataSource.getUrl();
+//        return getExecutor(url);
     }
 
     public static SqlResultExecutor getExecutor(String url) {

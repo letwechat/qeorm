@@ -1,12 +1,11 @@
 package qeorm.test;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import qeorm.SqlConfig;
 import qeorm.SqlConfigManager;
 import qeorm.test.model.Tag;
 import qeorm.utils.JsonUtils;
 
-import java.util.Date;
 import java.util.Map;
 
 public class RegTest {

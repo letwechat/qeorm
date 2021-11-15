@@ -1,8 +1,5 @@
 package qeorm;
 
-import com.alibaba.druid.pool.DruidAbstractDataSource;
-import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
@@ -10,8 +7,9 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cglib.beans.BeanMap;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -19,28 +17,21 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.util.ReflectionUtils;
+import org.yaml.snakeyaml.Yaml;
 import qeorm.jdbc.QeNamedParameterJdbcDaoSupport;
-import qeorm.utils.ClassUtils;
 import qeorm.utils.JsonUtils;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import org.yaml.snakeyaml.Yaml;
-
 /**
  * Created by ashen on 2017-2-4.
  */
 
-@ConfigurationProperties(prefix = "qeorm.datasource")
+
 public class SqlSession {
 
     public final static String Master = "Master";
@@ -135,17 +126,28 @@ public class SqlSession {
         if (_defaultConfig != null)
             defaultConfig.putAll(_defaultConfig);
         Map<String, DataSource> dataSources = new HashMap<>();
+        BeanDefinitionRegistry beanFactory = (BeanDefinitionRegistry) ((ConfigurableApplicationContext) SpringUtils.getApplicationContext()).getBeanFactory();
         for (Map.Entry<String, Map<String, String>> entry : dataSourcesMap.entrySet()) {
             if (!entry.getKey().equals("defaultConfig")) {
                 Map<String, String> config = new HashMap<>();
                 config.putAll(defaultConfig);
                 config.putAll(entry.getValue());
-                DruidAbstractDataSource dataSource = (DruidAbstractDataSource) Class.forName(config.get("class")).newInstance();
 
-                ClassUtils.config(dataSource, config);
-                if (dataSource instanceof DruidDataSource)
-                    ((DruidDataSource) dataSource).init();
-                dataSources.put(entry.getKey(), dataSource);
+                String type=config.get("type");
+                if(Strings.isNullOrEmpty(type)){
+                    type=config.get("class");
+                }
+                config.remove("type");
+                config.remove("class");
+                //创建bean信息.
+                BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(Class.forName(type));
+                for (Map.Entry<String, String> kv : config.entrySet()) {
+                    String field = kv.getKey();
+                    beanDefinitionBuilder.addPropertyValue(kv.getKey(), kv.getValue());
+                }
+
+                beanFactory.registerBeanDefinition(entry.getKey(), beanDefinitionBuilder.getBeanDefinition());
+                dataSources.put(entry.getKey(), (DataSource) SpringUtils.getBean(entry.getKey()));
             }
         }
         setDataSources(dataSources);

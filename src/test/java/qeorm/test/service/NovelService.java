@@ -1,12 +1,9 @@
 package qeorm.test.service;
 
-import org.junit.Test;
-import qeorm.TableStruct;
+import org.junit.jupiter.api.Test;
 import qeorm.test.model.Novel;
-import qeorm.test.model.Tag;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 public class NovelService {
     @Test

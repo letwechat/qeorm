@@ -120,15 +120,17 @@ public class SqlExecutor {
         if (!Strings.isNullOrEmpty(sqlConfig.getProxy())) {
             return new ProxyExecutor();
         }
-        return new SqlResultExecutor();
-//        NamedParameterJdbcDaoSupport jdbc = (NamedParameterJdbcDaoSupport) SqlSession.instance.getSupport(sqlConfig.getDbName());
-//        DataSource dataSource =  jdbc.getDataSource();
-//        String url = dataSource.getUrl();
-//        return getExecutor(url);
+        return getExecutorByDbname(sqlConfig.getDbName());
     }
 
     public static SqlResultExecutor getExecutorByDbname(String dbName) {
-        return new SqlResultExecutor();
+//        return new SqlResultExecutor();
+        Map<String, String> map = SqlSession.dataSourcesMap.get(dbName);
+        if (map == null) {
+            return getExecutor("");
+        } else {
+            return getExecutor(map.get("url"));
+        }
 //        NamedParameterJdbcDaoSupport jdbc = (NamedParameterJdbcDaoSupport) SqlSession.instance.getSupport(dbName);
 //        DruidAbstractDataSource dataSource = (DruidAbstractDataSource) jdbc.getDataSource();
 //        String url = dataSource.getUrl();

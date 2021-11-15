@@ -54,6 +54,8 @@ public class SqlSession {
             config = JsonUtils.convert(config.get("datasource"), Map.class);
             config = JsonUtils.convert(config.get("defaultConfig"), Map.class);
             defaultConfig = config;
+            instance = this;
+            SqlResultExecutor.setSqlSession(this);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
@@ -95,15 +97,16 @@ public class SqlSession {
 
     //----------------
 
-    private static Map<String, NamedParameterJdbcDaoSupport> jdbcTemplate = new HashMap<String, NamedParameterJdbcDaoSupport>();
+    private static Map<String, NamedParameterJdbcDaoSupport> jdbcTemplate =null;
 
     //    @Value("${qeorm.defaultDataSource}")
-    private String defaultDataSource;
+    private String defaultDataSource="default";
 
-    private Map<String, Map<String, String>> dataSourcesMap;
+    public static Map<String, Map<String, String>> dataSourcesMap;
 
     public void setDataSources(final Map<String, DataSource> dataSources) {
         String[] keys = Iterators.toArray(dataSources.keySet().iterator(), String.class);
+        jdbcTemplate=new HashMap<>();
         for (String input : keys) {
             logger.info("设置数据源{}", input);
             QeNamedParameterJdbcDaoSupport support = new QeNamedParameterJdbcDaoSupport();
@@ -115,12 +118,24 @@ public class SqlSession {
         SqlResultExecutor.setSqlSession(this);
     }
 
+    public void initJdbcTemplate(){
+        if(jdbcTemplate==null){
+            jdbcTemplate=new HashMap<>();
+            QeNamedParameterJdbcDaoSupport support = new QeNamedParameterJdbcDaoSupport();
+            support.setDataSource(SpringUtils.getBean(DataSource.class));
+            jdbcTemplate.put(defaultDataSource+Master, support);
+            jdbcTemplate.put(defaultDataSource+Slave, support);
+
+        }
+    }
+
     public void setDefaultDataSource(String _defaultDataSource) {
         defaultDataSource = _defaultDataSource;
     }
 
     //    @Value("${qeorm.dataSourcesMap}")
-    public void setDataSourcesMap(Map<String, Map<String, String>> dataSourcesMap) throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
+    public void setDataSourcesMap(Map<String, Map<String, String>> _dataSourcesMap) throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
+        dataSourcesMap=_dataSourcesMap;
         if (dataSourcesMap == null) return;
         Map<String, String> _defaultConfig = dataSourcesMap.get("defaultConfig");
         if (_defaultConfig != null)
@@ -165,6 +180,7 @@ public class SqlSession {
     }
 
     public NamedParameterJdbcDaoSupport getSupport(String _dbName) {
+        initJdbcTemplate();
         String dbName = _dbName;
         if (Strings.isNullOrEmpty(_dbName)) dbName = defaultDataSource + Master;
         if (!jdbcTemplate.containsKey(dbName)) {

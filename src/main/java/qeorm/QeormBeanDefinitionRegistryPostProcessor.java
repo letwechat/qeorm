@@ -1,5 +1,6 @@
 package qeorm;
 
+import com.google.common.base.Strings;
 import lombok.SneakyThrows;
 import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.BeansException;
@@ -35,12 +36,14 @@ public class QeormBeanDefinitionRegistryPostProcessor implements BeanDefinitionR
     @SneakyThrows
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        ClassPathScanner scanner = new ClassPathScanner(registry);
         String basePackage = env.getProperty("qeorm.mapper.basePackage");
         String dsIdenty = env.getProperty("qeorm.mapper.dsIdenty");
         String mapperLocations = env.getProperty("qeorm.mapper.mapperLocations");
-        scanner.registerFilters();
-        scanner.scan(StringUtils.tokenizeToStringArray(basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
+        if (!Strings.isNullOrEmpty(basePackage)) {
+            ClassPathScanner scanner = new ClassPathScanner(registry);
+            scanner.registerFilters();
+            scanner.scan(StringUtils.tokenizeToStringArray(basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
+        }
         try {
             SqlConfigManager.setDsIdenty(dsIdenty == null ? 3 : Integer.parseInt(dsIdenty));
             SqlConfigManager.scan(StringUtils.tokenizeToStringArray(mapperLocations, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
@@ -62,8 +65,8 @@ public class QeormBeanDefinitionRegistryPostProcessor implements BeanDefinitionR
         for (Resource r : resources) {
             MetadataReader reader = metaReader.getMetadataReader(r);
             if (reader.getAnnotationMetadata().getAnnotationTypes().contains(QeMapper.class.getName())) {
-                String className=reader.getClassMetadata().getClassName();
-                Class<?> klass=Class.forName(className);
+                String className = reader.getClassMetadata().getClassName();
+                Class<?> klass = Class.forName(className);
                 BeanDefinition sbd = new RootBeanDefinition(SqlConfigProxy.class);
                 sbd.getConstructorArgumentValues().addGenericArgumentValue(klass);
                 BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(sbd, klass.getSimpleName());

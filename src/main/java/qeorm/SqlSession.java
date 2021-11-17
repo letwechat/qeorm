@@ -187,7 +187,7 @@ public class SqlSession {
                 dbName = defaultDataSource + Master;
             else if (dbName.endsWith(Slave))
                 dbName = defaultDataSource + Slave;
-            logger.warn("数据源{}不存在，使用了默认数据源{}", _dbName, dbName);
+            logger.trace("数据源{}不存在，使用了默认数据源{}", _dbName, dbName);
 
         }
         //如果开启事务，则停用从库
@@ -198,7 +198,7 @@ public class SqlSession {
             logger.error("数据源" + dbName + "不存在", new DataSourceNotExistException("数据源" + dbName + "不存在"));
             throw new DataSourceNotExistException("数据源" + dbName + "不存在");
         }
-        logger.info("使用的数据源是{}", dbName);
+        logger.trace("使用的数据源是{}", dbName);
         NamedParameterJdbcDaoSupport jdbc = jdbcTemplate.get(dbName);
         setTransaction(dbName, jdbc.getDataSource());
         return jdbc;

@@ -22,7 +22,7 @@ public class QeormAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "qeorm.datasource", name = "defaultDataSource")
+//    @ConditionalOnProperty(prefix = "qeorm.datasource", name = "defaultDataSource")
     @ConfigurationProperties(prefix = "qeorm.datasource")
     public SqlSession qeormSqlSession() {
         return new SqlSession();
@@ -35,7 +35,7 @@ public class QeormAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "qeorm.mapper", name = "basePackage")
+    @ConditionalOnProperty(prefix = "qeorm.mapper", name = "mapperLocations")
     public QeormBeanDefinitionRegistryPostProcessor qeormBeanDefinitionRegistryPostProcessor(Environment env) {
         return new QeormBeanDefinitionRegistryPostProcessor(env);
     }

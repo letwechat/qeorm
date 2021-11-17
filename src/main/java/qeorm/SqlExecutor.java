@@ -38,12 +38,12 @@ public class SqlExecutor {
     public static <T> List<T> execSql(String sql, Map<String, Object> map, Class<T> returnType, String dbName) {
         String id = sql.replaceAll("\\s+", ".");
 //        if (SqlConfigManager.getSqlConfig(id) == null) {
-            SqlConfig sqlConfig = new SqlConfig();
-            sqlConfig.setId(id);
-            sqlConfig.setSql(sql);
-            sqlConfig.setDbName(dbName);
-            sqlConfig.setReturnType(returnType.getName());
-            SqlConfigManager.parseSql(sqlConfig);
+        SqlConfig sqlConfig = new SqlConfig();
+        sqlConfig.setId(id);
+        sqlConfig.setSql(sql);
+        sqlConfig.setDbName(dbName);
+        sqlConfig.setReturnType(returnType.getName());
+        SqlConfigManager.parseSql(sqlConfig);
 //            SqlConfigManager.addSqlConfig(sqlConfig);
 //        }
         SqlResult sqlResult = exec(sqlConfig, map);
@@ -125,6 +125,10 @@ public class SqlExecutor {
 
     public static SqlResultExecutor getExecutorByDbname(String dbName) {
 //        return new SqlResultExecutor();
+        if (SqlSession.dataSourcesMap == null) {
+
+            return getExecutor("");
+        }
         Map<String, String> map = SqlSession.dataSourcesMap.get(dbName);
         if (map == null) {
             return getExecutor("");
@@ -184,6 +188,7 @@ public class SqlExecutor {
     public static int batchInsert(String dbName, String tableName, String primaryKeyName, List<Map> dataList) {
         return getExecutorByDbname(dbName).batchInsert(dbName, tableName, primaryKeyName, dataList);
     }
+
     public static int batchSave(String dbName, String tableName, List<Map> dataList) {
         return getExecutorByDbname(dbName).batchSave(dbName, tableName, null, dataList);
     }

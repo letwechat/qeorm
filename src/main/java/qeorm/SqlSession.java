@@ -160,7 +160,6 @@ public class SqlSession {
                     String field = kv.getKey();
                     beanDefinitionBuilder.addPropertyValue(kv.getKey(), kv.getValue());
                 }
-
                 beanFactory.registerBeanDefinition(entry.getKey(), beanDefinitionBuilder.getBeanDefinition());
                 dataSources.put(entry.getKey(), (DataSource) SpringUtils.getBean(entry.getKey()));
             }

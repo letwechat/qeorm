@@ -218,8 +218,8 @@ public class SqlConfigManager {
      * @param config
      */
     public static void addSqlConfig(SqlConfig config) {
-        logger.info(config.getId() + "配置如下");
-        logger.info(JsonUtils.toJson(config));
+        logger.trace(config.getId() + "配置如下");
+        logger.trace(JsonUtils.toJson(config));
         if (sqlConfigMap.containsKey(config.getId()))
             logger.warn("sqlConfig " + config.getId() + " 被覆盖了");
         sqlConfigMap.put(config.getId(), config);

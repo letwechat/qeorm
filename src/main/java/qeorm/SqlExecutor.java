@@ -158,17 +158,17 @@ public class SqlExecutor {
         }
     }
 
-    public static <T extends ModelBase> int insert(T model) {
+    public static <T extends ModelBase> long insert(T model) {
         TableStruct tableStruct = TableStruct.getTableStruct(model.getClass().getName());
         return getExecutorByDbname(tableStruct.getMasterDbName()).insert(model);
     }
 
-    public static <T extends ModelBase> int update(T model) {
+    public static <T extends ModelBase> long update(T model) {
         TableStruct tableStruct = TableStruct.getTableStruct(model.getClass().getName());
         return getExecutorByDbname(tableStruct.getMasterDbName()).update(model);
     }
 
-    public static <T extends ModelBase> int save(T model) {
+    public static <T extends ModelBase> long save(T model) {
         TableStruct tableStruct = TableStruct.getTableStruct(model.getClass().getName());
         return getExecutorByDbname(tableStruct.getMasterDbName()).save(model);
     }

@@ -20,6 +20,7 @@ import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.StringUtils;
 import qeorm.annotation.QeMapper;
 
@@ -41,7 +42,8 @@ public class QeormBeanDefinitionRegistryPostProcessor implements BeanDefinitionR
         String mapperLocations = env.getProperty("qeorm.mapper.mapperLocations");
         if (!Strings.isNullOrEmpty(basePackage)) {
             ClassPathScanner scanner = new ClassPathScanner(registry);
-            scanner.registerFilters();
+            scanner.addIncludeFilter(new AnnotationTypeFilter(QeMapper.class));
+//            scanner.registerFilters();
             scanner.scan(StringUtils.tokenizeToStringArray(basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
         }
         try {

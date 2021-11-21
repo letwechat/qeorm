@@ -15,8 +15,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import qeorm.intercept.IFunIntercept;
-import qeorm.intercept.IModelmodify;
-import qeorm.intercept.ObjectToJsonString;
 import qeorm.utils.ExtendUtils;
 import qeorm.utils.JsonUtils;
 import qeorm.utils.Models;
@@ -448,15 +446,15 @@ public class SqlResultExecutor {
         throw new RuntimeException("暂不支持");
     }
 
-    public <T extends ModelBase> int insert(T model) {
+    public <T extends ModelBase> long insert(T model) {
         return model.insert2();
     }
 
-    public <T extends ModelBase> int update(T model) {
+    public <T extends ModelBase> long update(T model) {
         return model.update2();
     }
 
-    public <T extends ModelBase> int save(T model) {
+    public <T extends ModelBase> long save(T model) {
         TableStruct table = TableStruct.getTableStruct(model.getClass().getName());
         BeanMap thisMap = BeanMap.create(model);
         if (thisMap.get(table.getPrimaryField()) != null) {
